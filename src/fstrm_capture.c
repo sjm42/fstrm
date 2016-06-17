@@ -55,7 +55,7 @@
 #endif
 
 #define CAPTURE_HIGH_WATERMARK	262144
-#define FNAME_MAXLEN 1024
+#define FNAME_MAXLEN 8192
 
 struct capture;
 struct capture_args;
@@ -404,6 +404,7 @@ static bool
 open_write_file(struct capture *ctx)
 {
 	char *fstr = ctx->args->str_write_fname;
+    int s = ctx->args->split_s;
 	char *fname, *fn_buf;
 	time_t t;
 	struct tm the_time;
@@ -423,6 +424,7 @@ open_write_file(struct capture *ctx)
 	else {
 		/* Filename strftime expansion, useful when splitting output */
 		t = time(NULL);
+        if (s > 0) { t -= t % s; }
 		localtime_r(&t, &the_time);
 		fn_buf = (char*)my_calloc(FNAME_MAXLEN, 1);
 		fn_len = strftime(fn_buf, FNAME_MAXLEN, fstr, &the_time);
